@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/ca.footeware.py.texty2.desktop.in
+data/ca.footeware.py.texty2.metainfo.xml.in
+data/ca.footeware.py.texty2.gschema.xml
+src/main.py
+src/window.py
+src/window.ui

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=texty2
+Exec=texty2
+Icon=ca.footeware.py.texty2
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=ca.footeware.py.texty2
+Exec=@bindir@/texty2 --gapplication-service
