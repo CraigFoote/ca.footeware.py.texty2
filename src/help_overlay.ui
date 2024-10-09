@@ -4,7 +4,7 @@
     <property name="modal">True</property>
     <child>
       <object class="GtkShortcutsSection">
-        <property name="section-name">shortcuts</property>
+        <property name="section-name">General</property>
         <property name="max-height">10</property>
         <child>
           <object class="GtkShortcutsGroup">
@@ -12,13 +12,22 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Show Shortcuts</property>
-                <property name="action-name">win.show-help-overlay</property>
+                <property name="action-name">app.keyboard_shortcuts</property>
+                <property name="accelerator">&lt;primary&gt;question</property>
               </object>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Quit</property>
                 <property name="action-name">app.quit</property>
+                <property name="accelerator">&lt;primary&gt;Q</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Wrap Text</property>
+                <property name="action-name">app.on_toggle_wrap_action</property>
+                <property name="accelerator">&lt;primary&gt;&lt;shift&gt;W</property>
               </object>
             </child>
           </object>
@@ -27,3 +36,4 @@
     </child>
   </object>
 </interface>
+

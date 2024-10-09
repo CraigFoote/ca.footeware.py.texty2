@@ -11,7 +11,7 @@
           <property name="centering-policy">strict</property>
             <property name="title-widget">
               <object class="AdwWindowTitle" id="window_title">
-                <property name="title">texty</property>
+                <property name="title">texty2</property>
                 <property name="subtitle">a minimal text editor</property>
               </object>
             </property>
@@ -75,6 +75,7 @@
       <item>
         <attribute name="label">Wrap Text</attribute>
         <attribute name="action">app.toggle_wrap</attribute>
+        <attribute name="accelerator">&lt;primary&gt;&lt;shift&gt;W</attribute>
       </item>
       <submenu>
         <attribute name="label">Font Size</attribute>
@@ -124,6 +125,13 @@
           <attribute name="target" type="i">30</attribute>
         </item>
       </submenu>
+    </section>
+    <section>
+      <item>
+        <attribute name="label">Keyboard Shortcuts</attribute>
+        <attribute name="action">app.keyboard_shortcuts</attribute>
+        <attribute name="accelerator">&lt;primary&gt;question</attribute>
+      </item>
     </section>
   </menu>
 </interface>

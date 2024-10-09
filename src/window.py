@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 @Gtk.Template(resource_path='/ca/footeware/py/texty2/window.ui')
 class Texty2Window(Adw.ApplicationWindow):
@@ -32,17 +32,19 @@ class Texty2Window(Adw.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.init_template()
         self.apply_initial_font_size()
 
     def apply_initial_font_size(self):
         app = self.get_application()
-        if app:
-            saved_size = app.settings.get_int('font-size')
-            css_provider = Gtk.CssProvider()
-            css = f'textview {{ font-size: {saved_size}px; font-family: monospace; }}'.encode('utf-8')
-            css_provider.load_from_data(css)
-            self.text_view.get_style_context().add_provider(
-                css_provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-            )
+        saved_size = app.settings.get_int('font-size')
+        css_provider = Gtk.CssProvider()
+        css = f'textview {{ font-size: {saved_size}px; font-family: monospace; }}'.encode('utf-8')
+        css_provider.load_from_data(css)
+        display = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_display(
+            display,
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 

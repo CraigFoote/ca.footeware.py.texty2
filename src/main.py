@@ -19,13 +19,13 @@
 
 import sys
 import gi
+import os
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Gio, Adw, GLib, Gdk
 from .window import Texty2Window
-
 
 class Texty2Application(Adw.Application):
     """The main application singleton class."""
@@ -34,11 +34,18 @@ class Texty2Application(Adw.Application):
         super().__init__(application_id='ca.footeware.py.texty2',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
 
+
         self.settings = Gio.Settings.new('ca.footeware.py.texty2')
 
-        self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
+        self.create_action('toggle_wrap', self.on_toggle_wrap_action, ['<primary><shift>W'])
+        self.create_action('keyboard_shortcuts', self.on_keyboard_shortcuts_action, ["<primary>question"])
         self.create_action('about', self.on_about_action)
-        self.create_action('preferences', self.on_preferences_action)
+        self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
+
+        # Keyboard Shortcuts dialog
+        builder = Gtk.Builder()
+        builder.add_from_resource('/ca/footeware/py/texty2/help_overlay.ui')
+        self.shortcuts_window = builder.get_object("help_overlay")
 
         # Create the set_font_size action with a state
         set_font_size_action = Gio.SimpleAction.new_stateful(
@@ -49,21 +56,17 @@ class Texty2Application(Adw.Application):
         set_font_size_action.connect("activate", self.on_set_font_size_action)
         self.add_action(set_font_size_action)
 
-        action = self.lookup_action('set_font_size')
-        if action:
-           print("set_font_size action found")
-        else:
-           print("set_font_size action not found")
-
     def do_activate(self):
         win = self.props.active_window
         if not win:
             win = Texty2Window(application=self)
         win.present()
-
         # Apply the saved font size
         saved_size = self.settings.get_int('font-size')
         self.activate_action('set_font_size', GLib.Variant.new_int32(saved_size))
+
+    def on_keyboard_shortcuts_action(self, action, parameter):
+        self.shortcuts_window.present()
 
     def on_set_font_size_action(self, action, parameter):
         size = parameter.get_int32()
@@ -72,12 +75,12 @@ class Texty2Application(Adw.Application):
         css_provider = Gtk.CssProvider()
         css = f'textview {{ font-size: {size}px; font-family: monospace; }}'.encode('utf-8')
         css_provider.load_from_data(css)
-        win = self.props.active_window
-        if win and hasattr(win, 'text_view'):
-            win.text_view.get_style_context().add_provider(
-                css_provider,
-                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-            )
+        display = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_display(
+            display,
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
     def on_about_action(self, *args):
         """Callback for the app.about action."""
@@ -91,7 +94,7 @@ class Texty2Application(Adw.Application):
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)
 
-    def on_preferences_action(self, widget, _):
+    def on_toggle_wrap_action(self, widget, param=None):
         """Callback for the app.preferences action."""
         print('app.preferences action activated')
 
