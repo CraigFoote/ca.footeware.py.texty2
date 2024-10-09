@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Gio, GLib
 
 @Gtk.Template(resource_path='/ca/footeware/py/texty2/window.ui')
 class Texty2Window(Adw.ApplicationWindow):
@@ -33,13 +33,73 @@ class Texty2Window(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.init_template()
-        self.apply_initial_font_size()
+        self.settings = Gio.Settings.new('ca.footeware.py.texty2')
 
-    def apply_initial_font_size(self):
-        app = self.get_application()
-        saved_size = app.settings.get_int('font-size')
+        # init wrap mode based on prefs
+        wrap_mode = self.settings.get_boolean("wrap-mode")
+        self.text_view.set_wrap_mode(Gtk.WrapMode.WORD if wrap_mode else Gtk.WrapMode.NONE)
+
+        # init font size based on prefs
+        font_size = self.settings.get_int('font-size')
+        self.get_application().activate_action('set_font_size', GLib.Variant.new_int32(font_size))
+
+        # init window size based on prefs
+        width = self.settings.get_int("window-width")
+        height = self.settings.get_int("window-height")
+        self.set_default_size(width, height)
+        self.connect("close-request", self.on_close_request)
+
+        # Font Size action with initial state
+        set_font_size_action = Gio.SimpleAction.new_stateful(
+           'set_font_size',
+           GLib.VariantType.new('i'),
+           self.settings.get_value('font-size')
+        )
+        set_font_size_action.connect("activate", self.on_set_font_size_action)
+        self.add_action(set_font_size_action)
+
+        # Toggle Wrap action with initial state
+        toggle_wrap_action = Gio.SimpleAction.new_stateful(
+           'toggle_wrap',
+           None,
+           GLib.Variant.new_boolean(self.settings.get_boolean('wrap-mode'))
+        )
+        toggle_wrap_action.connect("activate", self.on_toggle_wrap_action)
+        self.get_application().set_accels_for_action("win.toggle_wrap", ["<primary><shift>W"])
+        self.add_action(toggle_wrap_action)
+
+
+    def on_toggle_wrap_action(self, action, parameter):
+        current_state = action.get_state()
+        if current_state is not None:
+            new_state = not current_state.get_boolean()
+        else:
+            # Fallback to settings if action state is None
+            new_state = not self.settings.get_boolean("wrap-mode")
+
+        action.set_state(GLib.Variant.new_boolean(new_state))
+
+        if new_state:
+            self.text_view.set_wrap_mode(Gtk.WrapMode.WORD)
+        else:
+            self.text_view.set_wrap_mode(Gtk.WrapMode.NONE)
+
+        # Save the wrap mode to prefs
+        self.settings.set_boolean("wrap-mode", new_state)
+
+    def on_close_request(self, window):
+        width = self.get_width()
+        height = self.get_height()
+        self.settings.set_int("window-width", width)
+        self.settings.set_int("window-height", height)
+        return False  # Return False to allow the window to close
+
+    def on_set_font_size_action(self, action, parameter):
+        size = parameter.get_int32()
+        action.set_state(parameter)
+        self.settings.set_int('font-size', size)
         css_provider = Gtk.CssProvider()
-        css = f'textview {{ font-size: {saved_size}px; font-family: monospace; }}'.encode('utf-8')
+        css = f'textview {{ font-size: {size}px; font-family: monospace; }}'.encode('utf-8')
         css_provider.load_from_data(css)
         display = Gdk.Display.get_default()
         Gtk.StyleContext.add_provider_for_display(
