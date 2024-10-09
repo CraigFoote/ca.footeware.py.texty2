@@ -34,9 +34,6 @@ class Texty2Application(Adw.Application):
         super().__init__(application_id='ca.footeware.py.texty2',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
 
-        # preferences
-        self.settings = Gio.Settings.new('ca.footeware.py.texty2')
-
         # Keyboard Shortcuts dialog
         builder = Gtk.Builder()
         builder.add_from_resource('/ca/footeware/py/texty2/help_overlay.ui')
@@ -59,26 +56,38 @@ class Texty2Application(Adw.Application):
         self.add_action(quit_action)
         self.set_accels_for_action("app.quit", ['<primary>q'])
 
+        # New window action
+        new_window_action = Gio.SimpleAction.new("new_window", None)
+        new_window_action.connect("activate", self.on_new_window_action)
+        self.add_action(new_window_action)
+        self.set_accels_for_action("app.new_window", ['<primary>n'])
+
     def do_activate(self):
-        win = self.props.active_window
-        if not win:
-            win = Texty2Window(application=self)
+        """Create a new window if there are no windows."""
+        if not self.get_windows():
+            self.on_new_window_action(None, None)
+
+    def on_new_window_action(self, action, parameter):
+        """Handle the New Window menu button being clicked."""
+        win = Texty2Window(application=self)
         win.present()
 
     def on_keyboard_shortcuts_action(self, action, parameter):
-        main_window = self.get_active_window()
-        if main_window:
-            self.shortcuts_window.set_transient_for(main_window)
+        """Open the Keyboard Shortcuts dialog."""
+        active_window = self.get_active_window()
+        if active_window:
+            self.shortcuts_window.set_transient_for(active_window)
             self.shortcuts_window.present()
 
     def on_about_action(self, *args):
+        """Open the About dialog."""
         about = Adw.AboutDialog(application_name='texty2',
                                 application_icon='ca.footeware.py.texty2',
                                 developer_name='Another fine mess by Footeware.ca',
                                 version='1.0.0',
                                 developers=['Craig Foote http://Footeware.ca'],
                                 copyright='© 2024 Craig Foote')
-        about.present(self.props.active_window)
+        about.present(self.get_active_window())
 
 def main(version):
     """The application's entry point."""
