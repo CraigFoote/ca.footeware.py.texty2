@@ -22,6 +22,7 @@ from gi.repository import Gtk, Gdk, Gio, GLib
 
 @Gtk.Template(resource_path='/ca/footeware/py/texty2/window.ui')
 class Texty2Window(Adw.ApplicationWindow):
+    """The main window containing a textview and a headerbar with menus."""
     __gtype_name__ = 'Texty2Window'
 
     save_button = Gtk.Template.Child()

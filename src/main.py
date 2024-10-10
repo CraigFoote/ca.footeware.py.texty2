@@ -17,15 +17,14 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+from .window import Texty2Window
+from gi.repository import Gtk, Gio, Adw, GLib
 import sys
-import gi
 import os
+import gi
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
-
-from gi.repository import Gtk, Gio, Adw, GLib, Gdk
-from .window import Texty2Window
 
 class Texty2Application(Adw.Application):
     """The main application singleton class."""
