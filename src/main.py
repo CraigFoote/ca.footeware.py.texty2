@@ -16,13 +16,13 @@ class Texty2Application(Adw.Application):
         # Keyboard Shortcuts dialog
         builder = Gtk.Builder()
         builder.add_from_resource('/ca/footeware/py/texty2/help_overlay.ui')
-        self.shortcuts_window = builder.get_object("help_overlay")
+        self.shortcuts_window = builder.get_object("help-overlay")
 
         # Keyboard Shortcuts action
-        keyboard_shortcuts_action = Gio.SimpleAction.new("keyboard_shortcuts", None)
+        keyboard_shortcuts_action = Gio.SimpleAction.new("keyboard-shortcuts", None)
         keyboard_shortcuts_action.connect("activate", self.on_keyboard_shortcuts_action)
         self.add_action(keyboard_shortcuts_action)
-        self.set_accels_for_action("app.keyboard_shortcuts", ["<primary>question"])
+        self.set_accels_for_action("app.keyboard-shortcuts", ["<primary>question"])
 
         # About action
         about_action = Gio.SimpleAction.new("about", None)
@@ -36,10 +36,10 @@ class Texty2Application(Adw.Application):
         self.set_accels_for_action("app.quit", ['<primary>q'])
 
         # New window action
-        new_window_action = Gio.SimpleAction.new("new_window", None)
+        new_window_action = Gio.SimpleAction.new("new-window", None)
         new_window_action.connect("activate", self.on_new_window_action)
         self.add_action(new_window_action)
-        self.set_accels_for_action("app.new_window", ['<primary>n'])
+        self.set_accels_for_action("app.new-window", ['<primary><shift>n'])
 
     def do_activate(self):
         """Create a new window if there are no windows."""

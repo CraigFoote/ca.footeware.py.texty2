@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="GtkShortcutsWindow" id="help_overlay">
+  <object class="GtkShortcutsWindow" id="help-overlay">
     <property name="modal">True</property>
     <child>
       <object class="GtkShortcutsSection">
@@ -12,7 +12,7 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Show Shortcuts</property>
-                <property name="action-name">app.keyboard_shortcuts</property>
+                <property name="action-name">app.keyboard-shortcuts</property>
                 <property name="accelerator">&lt;primary&gt;question</property>
               </object>
             </child>
@@ -26,8 +26,43 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Wrap Text</property>
-                <property name="action-name">app.on_toggle_wrap_action</property>
+                <property name="action-name">win.toggle-wrap</property>
                 <property name="accelerator">&lt;primary&gt;&lt;shift&gt;W</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Save</property>
+                <property name="action-name">win.save</property>
+                <property name="accelerator">&lt;primary&gt;S</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">New</property>
+                <property name="action-name">win.new</property>
+                <property name="accelerator">&lt;primary&gt;N</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Open</property>
+                <property name="action-name">win.open</property>
+                <property name="accelerator">&lt;primary&gt;O</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">Save As</property>
+                <property name="action-name">win.save-as</property>
+                <property name="accelerator">&lt;primary&gt;&lt;shift&gt;S</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="title" translatable="yes" context="shortcut window">New Window</property>
+                <property name="action-name">app.new-window</property>
+                <property name="accelerator">&lt;primary&gt;&lt;shift&gt;N</property>
               </object>
             </child>
           </object>
