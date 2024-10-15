@@ -19,7 +19,7 @@
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="title" translatable="yes" context="shortcut window">Quit</property>
-                <property name="action-name">app.quit</property>
+                <property name="action-name">win.quit</property>
                 <property name="accelerator">&lt;primary&gt;Q</property>
               </object>
             </child>

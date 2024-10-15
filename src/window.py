@@ -34,6 +34,12 @@ class Texty2Window(Adw.ApplicationWindow):
         self.connect("notify::default-width", self.on_window_size_change)
         self.connect("notify::default-height", self.on_window_size_change)
 
+        # Quit action
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", self.on_quit_action)
+        self.add_action(quit_action)
+        self.get_application().set_accels_for_action("win.quit", ['<primary>q'])
+
         # Save action
         save_action = Gio.SimpleAction.new("save", None)
         save_action.connect("activate", self.on_save_action)
@@ -83,6 +89,14 @@ class Texty2Window(Adw.ApplicationWindow):
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD if wrap_mode else Gtk.WrapMode.NONE)
 
         self.text_view.grab_focus()
+
+    def on_quit_action(self, action, parameters=None):
+        print("Window is destroying!") #Check if this prints
+        if self.buffer_modified:
+            print("in onquitaction, buffer modified")
+            self.prompt_save_changes("close")
+        else:
+            Gtk.Window.destroy(self)
 
     def on_save_action(self, action, parameters=None):
         self.save_file()
@@ -161,6 +175,7 @@ class Texty2Window(Adw.ApplicationWindow):
         self.text_view.get_buffer().set_modified(False)
 
     def prompt_save_changes(self, next_action):
+        print("prompting, nextaction="+next_action)
         dialog = Adw.MessageDialog.new(self)
         dialog.set_heading("Save changes?")
         dialog.set_body("There are unsaved changes. Do you want to save them?")
@@ -189,7 +204,9 @@ class Texty2Window(Adw.ApplicationWindow):
             self.create_new_file()
             self.text_view.grab_focus()
         elif next_action == "open":
-            self.open_file(self)
+            self.open_file()
+        elif next_action == "close":
+            Gtk.Window.destroy(self)
 
     def open_file(self):
         dialog = Gtk.FileDialog.new()
@@ -204,7 +221,7 @@ class Texty2Window(Adw.ApplicationWindow):
 
     def on_open_action(self, action, parameters=None):
         if self.buffer_modified:
-            self.prompt_save_changes("new")
+            self.prompt_save_changes("open")
         else:
             dialog = Gtk.FileDialog.new()
             dialog.set_title("Open File")
@@ -273,6 +290,7 @@ class Texty2Window(Adw.ApplicationWindow):
 
     def on_buffer_changed(self, buffer):
         self.buffer_modified = True
+        print(self.buffer_modified)
         title_str = self.window_title.get_title()
         if not title_str.startswith("* "):
             self.window_title.set_title(f"* {title_str}")
