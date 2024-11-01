@@ -10,6 +10,7 @@ class Texty2Application(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
+        """Initializes the application."""
         super().__init__(application_id='ca.footeware.py.texty2',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
 
@@ -29,12 +30,6 @@ class Texty2Application(Adw.Application):
         about_action.connect("activate", self.on_about_action)
         self.add_action(about_action)
 
-        # Quit action
-        quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda *_: self.quit())
-        self.add_action(quit_action)
-        self.set_accels_for_action("app.quit", ['<primary>q'])
-
         # New window action
         new_window_action = Gio.SimpleAction.new("new-window", None)
         new_window_action.connect("activate", self.on_new_window_action)
@@ -47,7 +42,7 @@ class Texty2Application(Adw.Application):
             self.on_new_window_action(None, None)
 
     def on_new_window_action(self, action, parameter):
-        """Handle the New Window menu button being clicked."""
+        """Handle the New Window menu button being clicked i.e. open a new window."""
         win = Texty2Window(application=self)
         win.present()
 
@@ -63,8 +58,8 @@ class Texty2Application(Adw.Application):
         about = Adw.AboutDialog(application_name='texty2',
                                 application_icon='ca.footeware.py.texty2',
                                 developer_name='Another fine mess by Footeware.ca',
-                                version='1.0.0',
-                                developers=['Craig Foote http://Footeware.ca'],
+                                version='1.0.1',
+                                developers=['Craig Foote https://Footeware.ca'],
                                 copyright='© 2024 Craig Foote')
         about.present(self.get_active_window())
 

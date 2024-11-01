@@ -6,7 +6,7 @@ from gi.repository import Gtk, Gio, GLib
 
 @Gtk.Template(resource_path='/ca/footeware/py/texty2/window.ui')
 class Texty2Window(Adw.ApplicationWindow):
-    """The main window containing a textview and a headerbar with menus."""
+    """The main window containing a textview and a header-bar with menus."""
     __gtype_name__ = 'Texty2Window'
 
     save_button = Gtk.Template.Child()
@@ -15,13 +15,22 @@ class Texty2Window(Adw.ApplicationWindow):
     window_title = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
+        """Initializes the window."""
         super().__init__(**kwargs)
+
+        # connect to window closing to intercept
+        self.connect("close-request", self.on_close_request)
+
+        # read UI file
         self.init_template()
+
+        # get dconf settings
         self.settings = Gio.Settings.new('ca.footeware.py.texty2')
 
+        # track current file displayed in window
         self.current_file = None
-        self.buffer_modified = False
 
+        # text buffer
         self.buffer = self.text_view.get_buffer()
         self.buffer.connect("changed", self.on_buffer_changed)
         self.buffer_modified = False # Flag to track buffer changes
@@ -33,6 +42,12 @@ class Texty2Window(Adw.ApplicationWindow):
         # Connect to window size change signals
         self.connect("notify::default-width", self.on_window_size_change)
         self.connect("notify::default-height", self.on_window_size_change)
+
+        # Quit action
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", self.on_quit_action)
+        self.add_action(quit_action)
+        self.get_application().set_accels_for_action("win.quit", ['<primary>q'])
 
         # Save action
         save_action = Gio.SimpleAction.new("save", None)
@@ -84,16 +99,33 @@ class Texty2Window(Adw.ApplicationWindow):
 
         self.text_view.grab_focus()
 
+    def on_close_request(self, action):
+        """Respond to request to close this window by using 'x'."""
+        if self.buffer_modified:
+            return self.prompt_save_changes("close")
+        else:
+            Gtk.Window.destroy(self)
+
+    def on_quit_action(self, action, parameters=None):
+        """Respond to request to close this window by using ctrl+q."""
+        if self.buffer_modified:
+            self.prompt_save_changes("close")
+        else:
+            Gtk.Window.destroy(self)
+
     def on_save_action(self, action, parameters=None):
+        """Respond to request to save file."""
         self.save_file()
 
     def save_file(self):
+        """Save current file if exists else invoke save-as."""
         if self.current_file:
-            return self.save_to_file(self.current_file)
+            self.save_to_file(self.current_file)
         else:
-            return self.save_as()
+            self.save_as()
 
     def save_to_file(self, file):
+        """Save current text to provided file."""
         buffer = self.text_view.get_buffer()
         text = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter(), True)
         try:
@@ -110,14 +142,13 @@ class Texty2Window(Adw.ApplicationWindow):
             return False
 
     def save_as(self):
+        """Respond to request to save-as."""
         dialog = Gtk.FileDialog.new()
         dialog.set_title("Save File")
         dialog.save(self, None, self.on_save_dialog_response)
 
-    def on_save_action(self, action, parameters=None):
-        self.save_file()
-
     def on_save_dialog_response(self, dialog, result):
+        """Respond to selection in save dialog."""
         try:
             file = dialog.save_finish(result)
             if file:
@@ -131,6 +162,7 @@ class Texty2Window(Adw.ApplicationWindow):
             self.show_toast(f"Error saving file: {error.message}")
 
     def load_file(self, file):
+        """Load provided file into text buffer."""
         try:
             with open(file.get_path(), 'r') as f:
                 text = f.read()
@@ -142,15 +174,18 @@ class Texty2Window(Adw.ApplicationWindow):
             self.show_toast(f"Error opening file: {str(e)}")
 
     def on_new_action(self, action, parameters=None):
+        """Respond to request to create a new file."""
         self.new_file()
 
     def new_file(self):
+        """Create a new file, checking if buffer has been modified."""
         if self.buffer_modified:
             self.prompt_save_changes("new")
         else:
             self.create_new_file()
 
     def create_new_file(self):
+        """Create a new file."""
         self.text_view.get_buffer().set_text("")
         self.text_view.get_buffer().set_modified(False)
         self.current_file = None
@@ -161,6 +196,7 @@ class Texty2Window(Adw.ApplicationWindow):
         self.text_view.get_buffer().set_modified(False)
 
     def prompt_save_changes(self, next_action):
+        """Prompt user to save modifications."""
         dialog = Adw.MessageDialog.new(self)
         dialog.set_heading("Save changes?")
         dialog.set_body("There are unsaved changes. Do you want to save them?")
@@ -171,11 +207,13 @@ class Texty2Window(Adw.ApplicationWindow):
         dialog.set_close_response("cancel")
         dialog.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
         dialog.set_response_appearance("discard", Adw.ResponseAppearance.DESTRUCTIVE)
-
         dialog.connect("response", self.on_save_changes_response, next_action)
         dialog.present()
+        # return true to keep window open
+        return True
 
     def on_save_changes_response(self, dialog, response, next_action):
+        """Handle response in the save changes dialog."""
         if response == "save":
             success = self.save_file()
             if success:
@@ -185,32 +223,32 @@ class Texty2Window(Adw.ApplicationWindow):
         # If "cancel" or dialog is closed, do nothing
 
     def execute_next_action(self, next_action):
+        """Invoke the action described in the next_action parameter."""
         if next_action == "new":
             self.create_new_file()
             self.text_view.grab_focus()
         elif next_action == "open":
-            self.open_file(self)
+            self.open_file()
+        elif next_action == "close":
+            Gtk.Window.destroy(self)
 
     def open_file(self):
+        """Open a file."""
         dialog = Gtk.FileDialog.new()
         dialog.set_title("Open File")
         dialog.open(self, None, self.on_open_dialog_response)
 
-    def save_file(self):
-        if self.current_file:
-            return self.save_to_file(self.current_file)
-        else:
-            return self.save_as()
-
     def on_open_action(self, action, parameters=None):
+        """Respond to request to open a file."""
         if self.buffer_modified:
-            self.prompt_save_changes("new")
+            self.prompt_save_changes("open")
         else:
             dialog = Gtk.FileDialog.new()
             dialog.set_title("Open File")
             dialog.open(self, None, self.on_open_dialog_response)
 
     def on_open_dialog_response(self, dialog, result):
+        """Handle open dialog response."""
         try:
             file = dialog.open_finish(result)
             if file:
@@ -225,6 +263,7 @@ class Texty2Window(Adw.ApplicationWindow):
             self.show_toast(f"Error opening file: {error.message}")
 
     def on_save_as_action(self, action, parameters=None):
+        """Respond to request to save-as."""
         self.save_as()
 
     def on_toggle_wrap_action(self, action, parameter):
@@ -268,10 +307,12 @@ class Texty2Window(Adw.ApplicationWindow):
         )
 
     def show_toast(self, message):
+        """Show a notification to the user."""
         toast = Adw.Toast.new(message)
         self.toast_overlay.add_toast(toast)
 
     def on_buffer_changed(self, buffer):
+        """Handle text buffer change by prepending an asterisk to the title."""
         self.buffer_modified = True
         title_str = self.window_title.get_title()
         if not title_str.startswith("* "):
