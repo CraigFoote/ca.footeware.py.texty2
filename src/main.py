@@ -10,6 +10,7 @@ class Texty2Application(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
+        """Initializes the application."""
         super().__init__(application_id='ca.footeware.py.texty2',
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
 
@@ -41,7 +42,7 @@ class Texty2Application(Adw.Application):
             self.on_new_window_action(None, None)
 
     def on_new_window_action(self, action, parameter):
-        """Handle the New Window menu button being clicked."""
+        """Handle the New Window menu button being clicked i.e. open a new window."""
         win = Texty2Window(application=self)
         win.present()
 
@@ -58,7 +59,7 @@ class Texty2Application(Adw.Application):
                                 application_icon='ca.footeware.py.texty2',
                                 developer_name='Another fine mess by Footeware.ca',
                                 version='1.0.1',
-                                developers=['Craig Foote http://Footeware.ca'],
+                                developers=['Craig Foote https://Footeware.ca'],
                                 copyright='© 2024 Craig Foote')
         about.present(self.get_active_window())
 
