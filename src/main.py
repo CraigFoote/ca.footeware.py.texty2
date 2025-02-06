@@ -60,7 +60,7 @@ class Texty2Application(Adw.Application):
                                 developer_name='Another fine mess by Footeware.ca',
                                 version='1.0.1',
                                 developers=['Craig Foote https://Footeware.ca'],
-                                copyright='© 2024 Craig Foote')
+                                copyright='©2024 Craig Foote')
         about.present(self.get_active_window())
 
 def main(version):
