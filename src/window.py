@@ -131,7 +131,7 @@ class Texty2Window(Adw.ApplicationWindow):
         try:
             with open(file.get_path(), 'w') as f:
                 f.write(text)
-            self.window_title.set_title(f"{file.get_basename()}")
+            self.window_title.set_title(file.get_basename())
             self.window_title.set_subtitle(file.get_path())
             self.buffer_modified = False
             self.text_view.get_buffer().set_modified(False)
@@ -253,7 +253,7 @@ class Texty2Window(Adw.ApplicationWindow):
             file = dialog.open_finish(result)
             if file:
                 self.load_file(file)
-                self.window_title.set_title(f"{file.get_basename()}")
+                self.window_title.set_title(file.get_basename())
                 self.window_title.set_subtitle(file.get_path())
                 self.buffer_modified = False
                 self.buffer.set_modified(False)
